@@ -29,8 +29,8 @@ function reduceWithCurrentName(acc, line) {
     acc.currentName = name;
     return acc;
   }
-
-  acc[acc.currentName].data.push(line);
+  const value = getReadingValue(line);
+  acc[acc.currentName].data.push(value);
   return acc;
 }
 
@@ -41,26 +41,23 @@ const transformData = R.compose(
 );
 
 function checkHumidityValues(humidity, humidityAcceptance, data) {
-  return data
-    .map(getReadingValue)
-    .some(
-      value =>
-        !isInRangeInclusive(
-          value,
-          humidity - humidityAcceptance,
-          humidity + humidityAcceptance
-        )
-    )
+  return data.some(
+    value =>
+      !isInRangeInclusive(
+        value,
+        humidity - humidityAcceptance,
+        humidity + humidityAcceptance
+      )
+  )
     ? HUMIDITY_STATE_2
     : HUMIDITY_STATE_1;
 }
 
 function checkThermometerValues(degrees, data) {
-  const values = data.map(getReadingValue);
-  if (isUltraPrecise(degrees, values)) {
+  if (isUltraPrecise(degrees, data)) {
     return THERMOMETER_BRAND_1;
   }
-  if (isVeryPrecise(degrees, values)) {
+  if (isVeryPrecise(degrees, data)) {
     return THERMOMETER_BRAND_2;
   }
   return THERMOMETER_BRAND_3;
